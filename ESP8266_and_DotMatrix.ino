@@ -21,6 +21,7 @@
 boolean showClock = true;
 boolean showWeather = true;
 boolean showCovidCounter = true;
+boolean showCurrency = true;
 uint8_t dotMatrixIndensity = 2;
 
 // Time Options
@@ -31,12 +32,17 @@ const long timeZone = 3; // default is 3 (+3)
 String weatherCity = "";
 String weatherAPIKey = "";
 
+// Currency Options
+String base = "USD";
+String baseTo = "TRY";
+
 // Wi-Fi Credentials
 char *ssid = "";
 char *pass = "";
 
 // HTTPS URLS
 String covid19URL = "https://api.covid19api.com/summary";
+String currencyURL = "https://api.exchangeratesapi.io/latest?base=" + base;
 
 // HTTP URLS
 String weatherURL = "http://api.openweathermap.org/data/2.5/weather?q=" + weatherCity + "&appid=" + weatherAPIKey;
@@ -81,6 +87,10 @@ void loop() {
 
   if (showCovidCounter) {
     sendHTTPSRequest(covid19URL);
+  }
+
+  if (showCurrency) {
+    sendHTTPSRequest(currencyURL);
   }
 }
 
@@ -132,6 +142,8 @@ void sendHTTPSRequest(String url) {
 
           if (url == covid19URL) {
             printCovid19(doc);
+          } else if (url == currencyURL) {
+            printCurrency(doc);
           }
         }
       } else {
@@ -199,4 +211,13 @@ void printClock() {
 
   P.print(currentTime);
   delay(1000);
+}
+
+void printCurrency(DynamicJsonDocument doc) {
+  JsonObject rates = doc["rates"];
+  float rate = rates[baseTo];
+  P.print("1 " + base);
+  delay(1000);
+  P.print(rate);
+  delay(3000);
 }
